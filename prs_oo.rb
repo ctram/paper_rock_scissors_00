@@ -4,41 +4,49 @@ class Player
   attr_accessor :name, :hand
 
   def initialize name
-    @name = name
-    @hand = Hand.new
+    self.name = name
+    self.hand = Hand.new
   end
 
 end
 
 class Hand
+  include Comparable
+  # TODO: add comparable module to Hand class
   attr_accessor :shape
 
   def initialize
   end
 
+  def <=> (other_hand)
+    if self.shape == other_hand.shape
+      return 0
+    elsif self.shape == "Rock"
+      return other_hand.shape == "Paper" ? -1 : 1
+    elsif self.shape == "Paper"
+      return other_hand.shape == "Scissors" ? -1 : 1
+    elsif self.shape == "Scissors"
+      return other_hand.shape == "Rock" ? -1 : 1
+    end
+  end
+
+
   def choose_random_shape
     shape = %w( Rock Paper Scissors)
-    @shape = shape.sample
+    self.shape = shape.sample
   end
-
-  def choose_shape shape
-    @shape = shape
-  end
-
 end
 
 class Game
   def find_winner player1, player2
-    r, p, s = "Rock", "Paper", "Scissors"
-
-    if player1.hand.shape == player2.hand.shape
+    # TODO: find winner
+    comparable_int = player1.hand <=> player2.hand
+    if comparable_int == 1
+      return player1
+    elsif comparable_int == -1
+      return player2
+    else
       return nil
-    elsif player1.hand.shape == r
-      return player2.hand.shape == p ? player2 : player1
-    elsif player1.hand.shape == p
-      return player2.hand.shape == s ? player2 : player1
-    elsif player1.hand.shape == s
-      return player2.hand.shape == r ? player2 : player1
     end
   end
 
@@ -75,10 +83,10 @@ class Game
       end
 
       # Set shape choices
-      user.hand.choose_shape(shape)
+      user.hand.shape = shape
       comp.hand.choose_random_shape
 
-      winner = find_winner user, comp
+      winner = find_winner(user, comp)
       loser = (winner == user) ? comp : user
 
       puts "#{user.name} chose #{user.hand.shape}"
